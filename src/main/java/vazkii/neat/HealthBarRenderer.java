@@ -9,6 +9,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.culling.Frustrum;
 import net.minecraft.client.renderer.entity.RenderItem;
@@ -30,6 +31,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,7 +43,7 @@ public class HealthBarRenderer {
     public static final ResourceLocation shaders_fix = new ResourceLocation("Neat/textures/shaders_workaround.png");
 
 	@SubscribeEvent
-	public void onRenderWorldLast(RenderWorldLastEvent event) {
+	public void onRenderWorldLast(RenderGameOverlayEvent event) {
 		Minecraft mc = Minecraft.getMinecraft();
 
 		if(!NeatConfig.renderInF1 && !Minecraft.isGuiEnabled())
@@ -91,8 +93,8 @@ public class HealthBarRenderer {
 				float brightness = 1.0f;
 				if (NeatConfig.darknessAdjustment) {
 					brightness = passedEntity.getBrightness(0.0f); // parameter is unused
-					if (brightness < 0.5f)
-						brightness = 0.5f; // fix a minecraft quirk
+					if (brightness < 0.1f)
+						brightness = 0.1f; // fix a minecraft quirk
 				}
 				int argbText = ( (int)(255 * brightness) << 24 ) | ( (int)(255 * brightness) << 16 ) | ( (int)(255 * brightness) << 8) | (int)(255 * brightness);
 
@@ -118,6 +120,14 @@ public class HealthBarRenderer {
 				float percent = (int) ((health / maxHealth) * 100F);
 
 				GL11.glPushMatrix();
+                GL11.glMatrixMode(GL11.GL_PROJECTION);
+                GL11.glPushMatrix();
+
+                GL11.glMatrixMode(GL11.GL_PROJECTION);
+                GL11.glLoadMatrix(ActiveRenderInfo.projection);
+                GL11.glMatrixMode(GL11.GL_MODELVIEW);
+                GL11.glLoadMatrix(ActiveRenderInfo.modelview);
+
 				GL11.glTranslatef((float) (x - RenderManager.renderPosX), (float) (y - RenderManager.renderPosY + passedEntity.height + NeatConfig.heightAbove), (float) (z - RenderManager.renderPosZ));
 				GL11.glNormal3f(0.0F, 1.0F, 0.0F);
 				GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
@@ -125,7 +135,7 @@ public class HealthBarRenderer {
 				GL11.glScalef(-scale, -scale, scale);
 				boolean lighting = GL11.glGetBoolean(GL11.GL_LIGHTING);
 				GL11.glDisable(GL11.GL_LIGHTING);
-//				GL11.glDepthMask(false);
+				GL11.glDepthMask(false);
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
 				GL11.glDisable(GL11.GL_TEXTURE_2D); //Just no, please
 				GL11.glEnable(GL11.GL_BLEND);
@@ -292,12 +302,14 @@ public class HealthBarRenderer {
 						off -= 4;
 					}
 				}
-
+                GL11.glMatrixMode(GL11.GL_PROJECTION);
+                GL11.glPopMatrix();
+                GL11.glMatrixMode(GL11.GL_MODELVIEW);
 				GL11.glPopMatrix();
 
 				GL11.glDisable(GL11.GL_BLEND);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
-//				GL11.glDepthMask(true);
+				GL11.glDepthMask(true);
 				if (lighting)
 					GL11.glEnable(GL11.GL_LIGHTING);
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
