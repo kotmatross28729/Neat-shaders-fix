@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Set;
 
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.Tessellator;
@@ -17,7 +20,6 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureAttribute;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,29 +29,27 @@ import net.minecraft.potion.Potion;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
-import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
-
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.relauncher.ReflectionHelper;
+import net.minecraft.util.ResourceLocation;
 
 public class HealthBarRenderer {
+    public static final Logger logger = LogManager.getLogger();
+    public static final ResourceLocation shaders_fix = new ResourceLocation("Neat/textures/shaders_workaround.png");
 
 	@SubscribeEvent
 	public void onRenderWorldLast(RenderWorldLastEvent event) {
 		Minecraft mc = Minecraft.getMinecraft();
 
-		if(!NeatConfig.renderInF1 && !Minecraft.isGuiEnabled()) 
+		if(!NeatConfig.renderInF1 && !Minecraft.isGuiEnabled())
 			return;
-		
+
 		if (mc.thePlayer.isPotionActive(Potion.blindness))
 			return;
-		
+
 		EntityLivingBase cameraEntity = mc.renderViewEntity;
 		Vec3 renderingVector = cameraEntity.getPosition(event.partialTicks);
 		Frustrum frustrum = new Frustrum();
@@ -66,9 +66,9 @@ public class HealthBarRenderer {
 		} else {
 			WorldClient client = mc.theWorld;
 			Set<Entity> entities = ReflectionHelper.getPrivateValue(WorldClient.class, client, new String[] { "entityList", "field_73032_d", "J" });
-	
+
 			for(Entity entity : entities)
-				if(entity != null && entity instanceof EntityLiving && entity != mc.thePlayer && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord) && (entity.ignoreFrustumCheck || frustrum.isBoundingBoxInFrustum(entity.boundingBox)) && entity.isEntityAlive()) 
+				if(entity != null && entity instanceof EntityLiving && entity != mc.thePlayer && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord) && (entity.ignoreFrustumCheck || frustrum.isBoundingBoxInFrustum(entity.boundingBox)) && entity.isEntityAlive())
 					renderHealthBar((EntityLiving) entity, event.partialTicks, cameraEntity);
 		}
 	}
@@ -76,13 +76,13 @@ public class HealthBarRenderer {
 	public void renderHealthBar(EntityLivingBase passedEntity, float partialTicks, Entity viewPoint) {
 		if(passedEntity.riddenByEntity != null)
 			return;
-		
+
 		EntityLivingBase entity = passedEntity;
 		while(entity.ridingEntity != null && entity.ridingEntity instanceof EntityLivingBase)
 			entity = (EntityLivingBase) entity.ridingEntity;
 
 		Minecraft mc = Minecraft.getMinecraft();
-		
+
 		float pastTranslate = 0F;
 		while(entity != null) {
 			if(NeatConfig.blacklist.contains(EntityList.getEntityString(entity)))
@@ -90,14 +90,14 @@ public class HealthBarRenderer {
 			processing: {
 				float brightness = 1.0f;
 				if (NeatConfig.darknessAdjustment) {
-					brightness = passedEntity.getBrightness(0.0f); // parameter is unused 
+					brightness = passedEntity.getBrightness(0.0f); // parameter is unused
 					if (brightness < 0.1f)
 						brightness = 0.1f; // fix a minecraft quirk
 				}
 				int argbText = ( (int)(255 * brightness) << 24 ) | ( (int)(255 * brightness) << 16 ) | ( (int)(255 * brightness) << 8) | (int)(255 * brightness);
-							
+
 				float distance = passedEntity.getDistanceToEntity(viewPoint);
-				if(distance > NeatConfig.maxDistance || !passedEntity.canEntityBeSeen(viewPoint) || entity.isInvisible()) 
+				if(distance > NeatConfig.maxDistance || !passedEntity.canEntityBeSeen(viewPoint) || entity.isInvisible())
 					break processing;
 				if(!NeatConfig.showOnBosses && entity instanceof IBossDisplayData)
 					break processing;
@@ -111,12 +111,12 @@ public class HealthBarRenderer {
 				float scale = 0.026666672F;
 				float maxHealth = entity.getMaxHealth();
 				float health = Math.min(maxHealth, entity.getHealth());
-				
+
 				if(maxHealth <= 0)
 					break processing;
 
 				float percent = (int) ((health / maxHealth) * 100F);
-				
+
 				GL11.glPushMatrix();
 				GL11.glTranslatef((float) (x - RenderManager.renderPosX), (float) (y - RenderManager.renderPosY + passedEntity.height + NeatConfig.heightAbove), (float) (z - RenderManager.renderPosZ));
 				GL11.glNormal3f(0.0F, 1.0F, 0.0F);
@@ -127,7 +127,7 @@ public class HealthBarRenderer {
 				GL11.glDisable(GL11.GL_LIGHTING);
 				GL11.glDepthMask(false);
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
-				GL11.glDisable(GL11.GL_TEXTURE_2D);
+//				GL11.glDisable(GL11.GL_TEXTURE_2D); //Just no, please
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				Tessellator tessellator = Tessellator.instance;
@@ -166,7 +166,7 @@ public class HealthBarRenderer {
 					g = 0;
 					b = 128;
 				}
-				
+
 				int armor = entity.getTotalArmorValue();
 
 				boolean useHue = !NeatConfig.colorByType;
@@ -177,9 +177,9 @@ public class HealthBarRenderer {
 					g = color.getGreen();
 					b = color.getBlue();
 				}
-				
+
 				GL11.glTranslatef(0F, pastTranslate, 0F);
-				
+
 				float s = 0.5F;
 				String name = I18n.format(entity.getCommandSenderName());
 				if(entity instanceof EntityLiving && ((EntityLiving) entity).hasCustomNameTag())
@@ -188,38 +188,50 @@ public class HealthBarRenderer {
 				if(namel + 20 > size * 2)
 					size = namel / 2F + 10F;
 				float healthSize = size * (health / maxHealth);
-				
+
 				// Background
 				if(NeatConfig.drawBackground) {
 					tessellator.startDrawingQuads();
+                    Minecraft.getMinecraft().renderEngine.bindTexture(shaders_fix);
 					tessellator.setColorRGBA(0, 0, 0, (int) (64f * brightness));
-					tessellator.addVertex(-size - padding, -bgHeight, 0.0D);
-					tessellator.addVertex(-size - padding, barHeight + padding, 0.0D);
-					tessellator.addVertex(size + padding, barHeight + padding, 0.0D);
-					tessellator.addVertex(size + padding, -bgHeight, 0.0D);
+                    if (!NeatConfig.darknessAdjustment) {
+                        tessellator.setBrightness(15728880); //Shaders somehow don't care about non tessellator brightness
+                    }
+					tessellator.addVertexWithUV(-size - padding, -bgHeight, 0.0D,0,1);
+					tessellator.addVertexWithUV(-size - padding, barHeight + padding, 0.0D,0,1);
+					tessellator.addVertexWithUV(size + padding, barHeight + padding, 0.0D,0,1);
+					tessellator.addVertexWithUV(size + padding, -bgHeight, 0.0D,0,1);
 					tessellator.draw();
 				}
 
 				// Gray Space
 				tessellator.startDrawingQuads();
+                Minecraft.getMinecraft().renderEngine.bindTexture(shaders_fix);
 				tessellator.setColorRGBA(127, 127, 127, (int) (127f * brightness));
-				tessellator.addVertex(-size, 0, 0.0D);
-				tessellator.addVertex(-size, barHeight, 0.0D);
-				tessellator.addVertex(size, barHeight, 0.0D);
-				tessellator.addVertex(size, 0, 0.0D);
+                if (!NeatConfig.darknessAdjustment) {
+                    tessellator.setBrightness(15728880); //Shaders somehow don't care about non tessellator brightness
+                }
+				tessellator.addVertexWithUV(-size, 0, 0.0D,0,1);
+				tessellator.addVertexWithUV(-size, barHeight, 0.0D,0,1);
+				tessellator.addVertexWithUV(size, barHeight, 0.0D,0,1);
+				tessellator.addVertexWithUV(size, 0, 0.0D,0,1);
 				tessellator.draw();
 
 				// Health Bar
 				tessellator.startDrawingQuads();
+                Minecraft.getMinecraft().renderEngine.bindTexture(shaders_fix);
 				tessellator.setColorRGBA(r, g, b, (int) (127f * brightness));
-				tessellator.addVertex(-size, 0, 0.0D);
-				tessellator.addVertex(-size, barHeight, 0.0D);
-				tessellator.addVertex(healthSize * 2 - size, barHeight, 0.0D);
-				tessellator.addVertex(healthSize * 2 - size, 0, 0.0D);
+                if (!NeatConfig.darknessAdjustment) {
+                    tessellator.setBrightness(15728880); //Shaders somehow don't care about non tessellator brightness
+                }
+				tessellator.addVertexWithUV(-size, 0, 0.0D,0,1);
+				tessellator.addVertexWithUV(-size, barHeight, 0.0D,0,1);
+				tessellator.addVertexWithUV(healthSize * 2 - size, barHeight, 0.0D,0,1);
+				tessellator.addVertexWithUV(healthSize * 2 - size, 0, 0.0D,0,1);
 				tessellator.draw();
 
-				GL11.glEnable(GL11.GL_TEXTURE_2D);
-				
+//				GL11.glEnable(GL11.GL_TEXTURE_2D);
+
 				GL11.glPushMatrix();
 				GL11.glTranslatef(-size, -4.5F, 0F);
 				GL11.glScalef(s, s, s);
@@ -228,17 +240,17 @@ public class HealthBarRenderer {
 				GL11.glPushMatrix();
 				float s1 = 0.75F;
 				GL11.glScalef(s1, s1, s1);
-				
+
 				int h = NeatConfig.hpTextHeight;
 				String maxHpStr = EnumChatFormatting.BOLD + "" + Math.round(maxHealth * 100.0) / 100.0;
 				String hpStr = "" + Math.round(health * 100.0) / 100.0;
 				String percStr = (int) percent + "%";
-				
+
 				if(maxHpStr.endsWith(".0"))
 					maxHpStr = maxHpStr.substring(0, maxHpStr.length() - 2);
 				if(hpStr.endsWith(".0"))
 					hpStr = hpStr.substring(0, hpStr.length() - 2);
-				
+
 				if(NeatConfig.showCurrentHP)
 					mc.fontRenderer.drawString(hpStr, 2, h, argbText);
 				if(NeatConfig.showMaxHP)
@@ -246,7 +258,7 @@ public class HealthBarRenderer {
 				if(NeatConfig.showPercentage)
 					mc.fontRenderer.drawString(percStr, (int) (size / (s * s1)) - mc.fontRenderer.getStringWidth(percStr) / 2, h, argbText);
  				GL11.glPopMatrix();
- 				
+
  				GL11.glColor4f(1F, 1F, 1F, brightness);
 				int off = 0;
 
@@ -258,7 +270,7 @@ public class HealthBarRenderer {
 					RenderItem.getInstance().renderIcon(off, 0, stack.getIconIndex(), 16, 16);
 					off -= 16;
 				}
-				
+
 				if(armor > 0 && NeatConfig.showArmor) {
 					int ironArmor = armor % 5;
 					int diamondArmor = armor / 5;
@@ -266,13 +278,13 @@ public class HealthBarRenderer {
 						ironArmor = armor;
 						diamondArmor = 0;
 					}
-					
+
 					stack = new ItemStack(Items.iron_chestplate);
 					for(int i = 0; i < ironArmor; i++) {
 						RenderItem.getInstance().renderIcon(off, 0, stack.getIconIndex(), 16, 16);
 						off -= 4;
 					}
-					
+
 					stack = new ItemStack(Items.diamond_chestplate);
 					for(int i = 0; i < diamondArmor; i++) {
 						RenderItem.getInstance().renderIcon(off, 0, stack.getIconIndex(), 16, 16);
@@ -289,7 +301,7 @@ public class HealthBarRenderer {
 					GL11.glEnable(GL11.GL_LIGHTING);
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 				GL11.glPopMatrix();
-				
+
 				pastTranslate = -(bgHeight + barHeight + padding);
 			}
 
@@ -309,13 +321,13 @@ public class HealthBarRenderer {
 		}
 		return null;
 	}
-	
+
 	// This is mostly copied from the EntityRenderer#getMouseOver() method
 	// Thanks to jabelar for the base code
 	public static MovingObjectPosition getMouseOverExtended(float dist)
 	{
 	    Minecraft mc = FMLClientHandler.instance().getClient();
-	   
+
 	    EntityLivingBase theRenderViewEntity = mc.renderViewEntity;
 	    AxisAlignedBB theViewBoundingBox = AxisAlignedBB.getBoundingBox(
 	            theRenderViewEntity.posX-0.5D,
@@ -337,11 +349,11 @@ public class HealthBarRenderer {
 	        {
 	            calcdist = returnMOP.hitVec.distanceTo(pos);
 	        }
-	         
-	        Vec3 lookvec = theRenderViewEntity.getLook(0);
-	        Vec3 var8 = pos.addVector(lookvec.xCoord * var2, 
 
-	              lookvec.yCoord * var2, 
+	        Vec3 lookvec = theRenderViewEntity.getLook(0);
+	        Vec3 var8 = pos.addVector(lookvec.xCoord * var2,
+
+	              lookvec.yCoord * var2,
 
 	              lookvec.zCoord * var2);
 	        Entity pointedEntity = null;
@@ -349,17 +361,17 @@ public class HealthBarRenderer {
 	        @SuppressWarnings("unchecked")
 	        List<Entity> list = mc.theWorld.getEntitiesWithinAABBExcludingEntity(
 
-	              theRenderViewEntity, 
+	              theRenderViewEntity,
 
 	              theViewBoundingBox.addCoord(
 
-	                    lookvec.xCoord * var2, 
+	                    lookvec.xCoord * var2,
 
-	                    lookvec.yCoord * var2, 
+	                    lookvec.yCoord * var2,
 
 	                    lookvec.zCoord * var2).expand(var9, var9, var9));
 	        double d = calcdist;
-	            
+
 	        for (Entity entity : list)
 	        {
 	            if (entity.canBeCollidedWith())
@@ -367,20 +379,20 @@ public class HealthBarRenderer {
 	                float bordersize = entity.getCollisionBorderSize();
 	                AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(
 
-	                      entity.posX-entity.width/2, 
+	                      entity.posX-entity.width/2,
 
-	                      entity.posY, 
+	                      entity.posY,
 
-	                      entity.posZ-entity.width/2, 
+	                      entity.posZ-entity.width/2,
 
-	                      entity.posX+entity.width/2, 
+	                      entity.posX+entity.width/2,
 
-	                      entity.posY+entity.height, 
+	                      entity.posY+entity.height,
 
 	                      entity.posZ+entity.width/2);
 	                aabb.expand(bordersize, bordersize, bordersize);
 	                MovingObjectPosition mop0 = aabb.calculateIntercept(pos, var8);
-	                    
+
 	                if (aabb.isVecInside(pos))
 	                {
 	                    if (0.0D < d || d == 0.0D)
@@ -391,7 +403,7 @@ public class HealthBarRenderer {
 	                } else if (mop0 != null)
 	                {
 	                    double d1 = pos.distanceTo(mop0.hitVec);
-	                        
+
 	                    if (d1 < d || d == 0.0D)
 	                    {
 	                        pointedEntity = entity;
@@ -400,7 +412,7 @@ public class HealthBarRenderer {
 	                }
 	            }
 	        }
-	           
+
 	        if (pointedEntity != null && (d < calcdist || returnMOP == null))
 	        {
 	             returnMOP = new MovingObjectPosition(pointedEntity);
@@ -410,5 +422,5 @@ public class HealthBarRenderer {
 	    return returnMOP;
 	}
 
-	
+
 }
