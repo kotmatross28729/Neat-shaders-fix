@@ -21,7 +21,7 @@ public class NeatConfig {
 	public static boolean showAttributes = true;
 	public static boolean showArmor = true;
 	public static boolean groupArmor = true;
-	public static boolean colorByType = false;
+	public static boolean colorByType = true;
 	public static int hpTextHeight = 14;
 	public static boolean showMaxHP = true;
 	public static boolean showCurrentHP = true;
@@ -61,7 +61,7 @@ public class NeatConfig {
 		showOnBosses = loadPropBool("Display on Bosses", showOnBosses);
 		showOnlyFocused = loadPropBool("Only show the health bar for the entity looked at", showOnlyFocused);
 		showOnlyFocusedRange = loadPropInt("Set the max range for checking what entity is looked at", showOnlyFocusedRange);
-		darknessAdjustment = loadPropBool("Darken the plates according to ambient brightness. (Note) The brightness of day/night does not affect this, it only affects if the mob is in a dark area. (It is recommended to leave it at false when playing with shaders, as this + - slightly fixes the problem with the bars becoming dark)", darknessAdjustment);
+		darknessAdjustment = loadPropBool("Darken the plates according to ambient brightness", darknessAdjustment);
 
 		Property prop = config.get(Configuration.CATEGORY_GENERAL, "Blacklist", new String[] { "Shulker" });
 		blacklist = Arrays.asList(prop.getStringList());

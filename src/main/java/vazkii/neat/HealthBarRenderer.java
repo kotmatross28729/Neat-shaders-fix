@@ -33,6 +33,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
@@ -44,6 +45,10 @@ public class HealthBarRenderer {
 
 	@SubscribeEvent
 	public void onRenderWorldLast(RenderGameOverlayEvent event) {
+
+        if (event.type != ElementType.ALL) {
+            return;
+        }
 		Minecraft mc = Minecraft.getMinecraft();
 
 		if(!NeatConfig.renderInF1 && !Minecraft.isGuiEnabled())
@@ -93,10 +98,12 @@ public class HealthBarRenderer {
 				float brightness = 1.0f;
 				if (NeatConfig.darknessAdjustment) {
 					brightness = passedEntity.getBrightness(0.0f); // parameter is unused
-					if (brightness < 0.1f)
-						brightness = 0.1f; // fix a minecraft quirk
+                    if (brightness < 0.5f)
+                        brightness = 0.5f;
+
 				}
-				int argbText = ( (int)(255 * brightness) << 24 ) | ( (int)(255 * brightness) << 16 ) | ( (int)(255 * brightness) << 8) | (int)(255 * brightness);
+
+				int argbText = ( (int)(255 * brightness) << 24 ) | ( (int)(255 * brightness) << 16 ) | ( (int)(255 * brightness) << 8) | (int)(255); // At first, I just wanted the text to be a little lighter than the rest of the bar, but that just made the bar yellow-blue color, so I just made the text transparency independent of the light)
 
 				float distance = passedEntity.getDistanceToEntity(viewPoint);
 				if(distance > NeatConfig.maxDistance || !passedEntity.canEntityBeSeen(viewPoint) || entity.isInvisible())
@@ -137,7 +144,7 @@ public class HealthBarRenderer {
 				GL11.glDisable(GL11.GL_LIGHTING);
 				GL11.glDepthMask(false);
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
-				GL11.glDisable(GL11.GL_TEXTURE_2D); //Just no, please
+				GL11.glDisable(GL11.GL_TEXTURE_2D);
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				Tessellator tessellator = Tessellator.instance;
@@ -170,11 +177,11 @@ public class HealthBarRenderer {
 				}
 
 				if(entity instanceof IBossDisplayData) {
+                    r = 128;
+                    g = 0;
+                    b = 128;
 					stack = new ItemStack(Items.skull);
 					size = NeatConfig.plateSizeBoss;
-					r = 128;
-					g = 0;
-					b = 128;
 				}
 
 				int armor = entity.getTotalArmorValue();
@@ -204,9 +211,6 @@ public class HealthBarRenderer {
 					tessellator.startDrawingQuads();
                     Minecraft.getMinecraft().renderEngine.bindTexture(shaders_fix);
 					tessellator.setColorRGBA(0, 0, 0, (int) (64f * brightness));
-                    if (!NeatConfig.darknessAdjustment) {
-                        tessellator.setBrightness(15728880); //Shaders somehow don't care about non tessellator brightness
-                    }
 					tessellator.addVertexWithUV(-size - padding, -bgHeight, 0.0D,0,1);
 					tessellator.addVertexWithUV(-size - padding, barHeight + padding, 0.0D,0,1);
 					tessellator.addVertexWithUV(size + padding, barHeight + padding, 0.0D,0,1);
@@ -218,9 +222,6 @@ public class HealthBarRenderer {
 				tessellator.startDrawingQuads();
                 Minecraft.getMinecraft().renderEngine.bindTexture(shaders_fix);
 				tessellator.setColorRGBA(127, 127, 127, (int) (127f * brightness));
-                if (!NeatConfig.darknessAdjustment) {
-                    tessellator.setBrightness(15728880); //Shaders somehow don't care about non tessellator brightness
-                }
 				tessellator.addVertexWithUV(-size, 0, 0.0D,0,1);
 				tessellator.addVertexWithUV(-size, barHeight, 0.0D,0,1);
 				tessellator.addVertexWithUV(size, barHeight, 0.0D,0,1);
@@ -231,9 +232,6 @@ public class HealthBarRenderer {
 				tessellator.startDrawingQuads();
                 Minecraft.getMinecraft().renderEngine.bindTexture(shaders_fix);
 				tessellator.setColorRGBA(r, g, b, (int) (127f * brightness));
-                if (!NeatConfig.darknessAdjustment) {
-                    tessellator.setBrightness(15728880); //Shaders somehow don't care about non tessellator brightness
-                }
 				tessellator.addVertexWithUV(-size, 0, 0.0D,0,1);
 				tessellator.addVertexWithUV(-size, barHeight, 0.0D,0,1);
 				tessellator.addVertexWithUV(healthSize * 2 - size, barHeight, 0.0D,0,1);
