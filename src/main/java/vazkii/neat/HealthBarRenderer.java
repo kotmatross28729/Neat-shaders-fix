@@ -91,8 +91,8 @@ public class HealthBarRenderer {
 				float brightness = 1.0f;
 				if (NeatConfig.darknessAdjustment) {
 					brightness = passedEntity.getBrightness(0.0f); // parameter is unused
-					if (brightness < 0.1f)
-						brightness = 0.1f; // fix a minecraft quirk
+					if (brightness < 0.5f)
+						brightness = 0.5f; // fix a minecraft quirk
 				}
 				int argbText = ( (int)(255 * brightness) << 24 ) | ( (int)(255 * brightness) << 16 ) | ( (int)(255 * brightness) << 8) | (int)(255 * brightness);
 
@@ -125,9 +125,9 @@ public class HealthBarRenderer {
 				GL11.glScalef(-scale, -scale, scale);
 				boolean lighting = GL11.glGetBoolean(GL11.GL_LIGHTING);
 				GL11.glDisable(GL11.GL_LIGHTING);
-				GL11.glDepthMask(false);
+//				GL11.glDepthMask(false);
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
-//				GL11.glDisable(GL11.GL_TEXTURE_2D); //Just no, please
+				GL11.glDisable(GL11.GL_TEXTURE_2D); //Just no, please
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				Tessellator tessellator = Tessellator.instance;
@@ -230,7 +230,7 @@ public class HealthBarRenderer {
 				tessellator.addVertexWithUV(healthSize * 2 - size, 0, 0.0D,0,1);
 				tessellator.draw();
 
-//				GL11.glEnable(GL11.GL_TEXTURE_2D);
+				GL11.glEnable(GL11.GL_TEXTURE_2D);
 
 				GL11.glPushMatrix();
 				GL11.glTranslatef(-size, -4.5F, 0F);
@@ -257,6 +257,7 @@ public class HealthBarRenderer {
 					mc.fontRenderer.drawString(maxHpStr, (int) (size / (s * s1) * 2) - 2 - mc.fontRenderer.getStringWidth(maxHpStr), h, argbText);
 				if(NeatConfig.showPercentage)
 					mc.fontRenderer.drawString(percStr, (int) (size / (s * s1)) - mc.fontRenderer.getStringWidth(percStr) / 2, h, argbText);
+
  				GL11.glPopMatrix();
 
  				GL11.glColor4f(1F, 1F, 1F, brightness);
@@ -296,7 +297,7 @@ public class HealthBarRenderer {
 
 				GL11.glDisable(GL11.GL_BLEND);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
-				GL11.glDepthMask(true);
+//				GL11.glDepthMask(true);
 				if (lighting)
 					GL11.glEnable(GL11.GL_LIGHTING);
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);

@@ -8,7 +8,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
 public class NeatConfig {
-	
+
 	public static int maxDistance = 24;
 	public static boolean renderInF1 = false;
 	public static double heightAbove = 0.6;
@@ -30,16 +30,16 @@ public class NeatConfig {
 	public static boolean showOnBosses = true;
 	public static boolean showOnlyFocused = true;
 	public static int showOnlyFocusedRange = 40;
-	public static boolean darknessAdjustment = true;
-	
+	public static boolean darknessAdjustment = false;
+
 	public static List<String> blacklist;
 
 	private static Configuration config;
-	
+
 	public static void init(File f) {
 		config = new Configuration(f);
 		config.load();
-		
+
 		maxDistance = loadPropInt("Max Distance", maxDistance);
 		renderInF1 = loadPropBool("Render with Interface Disabled (F1)", renderInF1);
 		heightAbove = loadPropDouble("Height Above Mob", heightAbove);
@@ -61,15 +61,15 @@ public class NeatConfig {
 		showOnBosses = loadPropBool("Display on Bosses", showOnBosses);
 		showOnlyFocused = loadPropBool("Only show the health bar for the entity looked at", showOnlyFocused);
 		showOnlyFocusedRange = loadPropInt("Set the max range for checking what entity is looked at", showOnlyFocusedRange);
-		darknessAdjustment = loadPropBool("Darken the plates according to ambient brightness", darknessAdjustment);
-		
+		darknessAdjustment = loadPropBool("Darken the plates according to ambient brightness. (Note) The brightness of day/night does not affect this, it only affects if the mob is in a dark area. (It is recommended to leave it at false when playing with shaders, as this + - slightly fixes the problem with the bars becoming dark)", darknessAdjustment);
+
 		Property prop = config.get(Configuration.CATEGORY_GENERAL, "Blacklist", new String[] { "Shulker" });
 		blacklist = Arrays.asList(prop.getStringList());
 
 		if(config.hasChanged())
 			config.save();
 	}
-	
+
 	public static int loadPropInt(String propName, int default_) {
 		Property prop = config.get(Configuration.CATEGORY_GENERAL, propName, default_);
 		return prop.getInt(default_);
