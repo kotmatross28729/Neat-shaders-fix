@@ -79,7 +79,6 @@ public class HealthBarRenderer {
 					renderHealthBar((EntityLiving) entity, event.partialTicks, cameraEntity);
 		}
 	}
-
 	public void renderHealthBar(EntityLivingBase passedEntity, float partialTicks, Entity viewPoint) {
 		if(passedEntity.riddenByEntity != null)
 			return;
