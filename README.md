@@ -6,11 +6,17 @@ A mod that adds a health bar to mobs, but now works with shaders.
 
 <summary>Several demonstrations:</summary>
 
-https://github.com/kotmatross28729/Neat-shaders-fix/assets/110309314/2feae73f-008e-408e-959a-e1c8e2ff1251
+https://github.com/kotmatross28729/Neat-shaders-fix/assets/110309314/59118c49-89c1-4e6f-a02d-31138f16548a
 
-https://github.com/kotmatross28729/Neat-shaders-fix/assets/110309314/8bf1c1eb-4ba8-45a1-96d5-ed8efe55ad1e
 
-https://github.com/kotmatross28729/Neat-shaders-fix/assets/110309314/40c56fc7-c115-482c-ba2e-97306ced1871
+https://github.com/kotmatross28729/Neat-shaders-fix/assets/110309314/01cc3602-fc13-4f21-a7ef-80ea453b84e6
+
+
+
+
+https://github.com/kotmatross28729/Neat-shaders-fix/assets/110309314/2d1986c9-5279-4351-ab1b-acf47d69dd5d
+
+
 
 
 
@@ -19,7 +25,10 @@ https://github.com/kotmatross28729/Neat-shaders-fix/assets/110309314/40c56fc7-c1
 
 <summary>Idk why, but one of the bugs during development</summary>
 
-https://github.com/kotmatross28729/bbb/assets/110309314/68eb1558-172c-4860-8f5a-490063d94add
+
+
+https://github.com/kotmatross28729/Neat-shaders-fix/assets/110309314/1480d34f-f359-4a28-8bd7-eab3000562fc
+
 
 
 
