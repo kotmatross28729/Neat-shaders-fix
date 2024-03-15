@@ -70,10 +70,10 @@ public class HealthBarRenderer {
             Set<Entity> entities = client.entityList;
 
             for(Entity entity : entities)
-				if(entity != null && entity instanceof EntityLiving && entity != mc.thePlayer
-                    && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord)
-                    /*&& (entity.ignoreFrustumCheck || frustrum.isBoundingBoxInFrustum(entity.boundingBox))*/ && entity.isEntityAlive()) //isBoundingBoxInFrustum turned out to be the cause of an issue where bars weren't rendering at certain angles, and it seems to be completely unnecessary since bars don't render after a certain distance, and don't render behind blocks
-					renderHealthBar((EntityLiving) entity, event.partialTicks, cameraEntity);
+                    if (entity != null && (entity instanceof EntityLiving || entity instanceof EntityPlayer) && entity != mc.thePlayer
+                        && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord)
+                        /*&& (entity.ignoreFrustumCheck || frustrum.isBoundingBoxInFrustum(entity.boundingBox))*/ && entity.isEntityAlive()) //isBoundingBoxInFrustum turned out to be the cause of an issue where bars weren't rendering at certain angles, and it seems to be completely unnecessary since bars don't render after a certain distance, and don't render behind blocks
+                        renderHealthBar((EntityLivingBase) entity, event.partialTicks, cameraEntity);
 		}
 	}
 	public void renderHealthBar(EntityLivingBase passedEntity, float partialTicks, Entity viewPoint) {
