@@ -8,6 +8,7 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.Tessellator;
@@ -76,7 +77,9 @@ public class HealthBarRenderer {
             Set<Entity> entities = client.entityList;
 
             for(Entity entity : entities)
-				if(entity instanceof EntityLiving && entity != mc.thePlayer && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord) && (entity.ignoreFrustumCheck || frustrum.isBoundingBoxInFrustum(entity.boundingBox)) && entity.isEntityAlive())
+				if(entity != null && entity instanceof EntityLiving && entity != mc.thePlayer
+                    && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord)
+                    /*&& (entity.ignoreFrustumCheck || frustrum.isBoundingBoxInFrustum(entity.boundingBox))*/ && entity.isEntityAlive()) //isBoundingBoxInFrustum turned out to be the cause of an issue where bars weren't rendering at certain angles, and it seems to be completely unnecessary since bars don't render after a certain distance, and don't render behind blocks
 					renderHealthBar((EntityLiving) entity, event.partialTicks, cameraEntity);
 		}
 	}
@@ -90,6 +93,7 @@ public class HealthBarRenderer {
 
 		Minecraft mc = Minecraft.getMinecraft();
 
+        //ScaledResolution sr = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight); //TODO NEW
 		float pastTranslate = 0F;
 		while(entity != null) {
 			if(NeatConfig.blacklist.contains(EntityList.getEntityString(entity)))
@@ -116,8 +120,21 @@ public class HealthBarRenderer {
 				double x = passedEntity.lastTickPosX + (passedEntity.posX - passedEntity.lastTickPosX) * partialTicks;
 				double y = passedEntity.lastTickPosY + (passedEntity.posY - passedEntity.lastTickPosY) * partialTicks;
 				double z = passedEntity.lastTickPosZ + (passedEntity.posZ - passedEntity.lastTickPosZ) * partialTicks;
+                //final double Distance = Math.sqrt(x * x + y * y + z * z); //TODO NEW
+
+
+                //final double interpX = RenderManager.renderPosX - (entity.posX - (entity.prevPosX - entity.posX) * partialTicks);
+                //final double interpY = RenderManager.renderPosY - (entity.posY - (entity.prevPosY - entity.posY) * partialTicks);
+                //final double interpZ = RenderManager.renderPosZ - (entity.posZ - (entity.prevPosZ - entity.posZ) * partialTicks);
+                //final double interpDistance = Math.sqrt(interpX * interpX + interpY * interpY + interpZ * interpZ);
 
 				float scale = 0.026666672F;
+                //GL11.glRotatef(-RenderManager.instance.playerViewY + 180, 0, 1, 0); //TODO NEW
+                //GL11.glRotatef(-RenderManager.instance.playerViewX, 1, 0, 0); //TODO NEW
+                //double scale = Distance; //TODO NEW
+                //scale /= sr.getScaleFactor() * 160; //TODO NEW
+                //if (scale <= 0.01) //TODO NEW
+                //    scale = 0.01; //TODO NEW
 				float maxHealth = entity.getMaxHealth();
 				float health = Math.min(maxHealth, entity.getHealth());
 
@@ -140,6 +157,7 @@ public class HealthBarRenderer {
 				GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
 				GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
 				GL11.glScalef(-scale, -scale, scale);
+                //GL11.glScaled(scale, -scale, scale); //TODO NEW
 				boolean lighting = GL11.glGetBoolean(GL11.GL_LIGHTING);
 				GL11.glDisable(GL11.GL_LIGHTING);
 				GL11.glDepthMask(false);
@@ -311,6 +329,9 @@ public class HealthBarRenderer {
 				if (lighting)
 					GL11.glEnable(GL11.GL_LIGHTING);
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                //GL11.glRotatef(RenderManager.instance.playerViewX, 1, 0, 0);//TODO NEW
+                //GL11.glRotatef(RenderManager.instance.playerViewY - 180, 0, 1, 0);//TODO NEW
+                //GL11.glTranslated(x, y - entity.height - 0.5, z); //TODO NEW
 				GL11.glPopMatrix();
 
 				pastTranslate = -(bgHeight + barHeight + padding);

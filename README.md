@@ -49,7 +49,7 @@ For now there are only fixes for shaders, but several improvements are possible 
 ## current TODO:
 
 1) Make the bar above the mobs scale depending on the screen resolution / GUI scale in the mc settings
-2) Make it so that the bar above mobs displayed not only when you look at the mob (now this works very poorly / practically does not work)
+2) ~~Make it so that the bar above mobs displayed not only when you look at the mob (now this works very poorly / practically does not work)~~ fixed in 1.0.1
 
 # Credits:
 
