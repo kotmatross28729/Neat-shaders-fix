@@ -68,14 +68,15 @@ public class HealthBarRenderer {
 
 		if (NeatConfig.showOnlyFocused) {
 			Entity focused = getEntityLookedAt(mc.thePlayer);
-			if(focused != null && focused instanceof EntityLivingBase)
+			if(focused instanceof EntityLivingBase)
 				renderHealthBar((EntityLivingBase) focused, event.partialTicks, cameraEntity);
 		} else {
 			WorldClient client = mc.theWorld;
-			Set<Entity> entities = ReflectionHelper.getPrivateValue(WorldClient.class, client, new String[] { "entityList", "field_73032_d", "J" });
+			//Set<Entity> entities = ReflectionHelper.getPrivateValue(WorldClient.class, client, new String[] { "entityList", "field_73032_d", "J" });
+            Set<Entity> entities = client.entityList;
 
-			for(Entity entity : entities)
-				if(entity != null && entity instanceof EntityLiving && entity != mc.thePlayer && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord) && (entity.ignoreFrustumCheck || frustrum.isBoundingBoxInFrustum(entity.boundingBox)) && entity.isEntityAlive())
+            for(Entity entity : entities)
+				if(entity instanceof EntityLiving && entity != mc.thePlayer && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord) && (entity.ignoreFrustumCheck || frustrum.isBoundingBoxInFrustum(entity.boundingBox)) && entity.isEntityAlive())
 					renderHealthBar((EntityLiving) entity, event.partialTicks, cameraEntity);
 		}
 	}
@@ -84,7 +85,7 @@ public class HealthBarRenderer {
 			return;
 
 		EntityLivingBase entity = passedEntity;
-		while(entity.ridingEntity != null && entity.ridingEntity instanceof EntityLivingBase)
+		while(entity.ridingEntity instanceof EntityLivingBase)
 			entity = (EntityLivingBase) entity.ridingEntity;
 
 		Minecraft mc = Minecraft.getMinecraft();
