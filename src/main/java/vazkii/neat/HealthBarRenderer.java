@@ -1,12 +1,7 @@
 package vazkii.neat;
 
-import java.awt.Color;
-import java.util.List;
-import java.util.Set;
-
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -17,28 +12,26 @@ import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureAttribute;
+import net.minecraft.entity.*;
 import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.*;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
-import net.minecraft.util.ResourceLocation;
+
+import java.awt.Color;
+import java.util.List;
+import java.util.Set;
+
+import static vazkii.neat.NeatConfig.getScaleFactorMultiplier;
+import static vazkii.neat.NeatConfig.minScale;
 
 public class HealthBarRenderer {
     public static final Logger logger = LogManager.getLogger();
@@ -93,7 +86,7 @@ public class HealthBarRenderer {
 
 		Minecraft mc = Minecraft.getMinecraft();
 
-        //ScaledResolution sr = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight); //TODO NEW
+        ScaledResolution sr = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight); //1.0.1 - scale patch
 		float pastTranslate = 0F;
 		while(entity != null) {
 			if(NeatConfig.blacklist.contains(EntityList.getEntityString(entity)))
@@ -120,21 +113,13 @@ public class HealthBarRenderer {
 				double x = passedEntity.lastTickPosX + (passedEntity.posX - passedEntity.lastTickPosX) * partialTicks;
 				double y = passedEntity.lastTickPosY + (passedEntity.posY - passedEntity.lastTickPosY) * partialTicks;
 				double z = passedEntity.lastTickPosZ + (passedEntity.posZ - passedEntity.lastTickPosZ) * partialTicks;
-                //final double Distance = Math.sqrt(x * x + y * y + z * z); //TODO NEW
 
+                final double interpX = RenderManager.renderPosX - (entity.posX - (entity.prevPosX - entity.posX) * partialTicks); //1.0.1 - scale patch
+                final double interpY = RenderManager.renderPosY - (entity.posY - (entity.prevPosY - entity.posY) * partialTicks); //1.0.1 - scale patch
+                final double interpZ = RenderManager.renderPosZ - (entity.posZ - (entity.prevPosZ - entity.posZ) * partialTicks); //1.0.1 - scale patch
+                final double interpDistance = Math.sqrt(interpX * interpX + interpY * interpY + interpZ * interpZ); //1.0.1 - scale patch
 
-                //final double interpX = RenderManager.renderPosX - (entity.posX - (entity.prevPosX - entity.posX) * partialTicks);
-                //final double interpY = RenderManager.renderPosY - (entity.posY - (entity.prevPosY - entity.posY) * partialTicks);
-                //final double interpZ = RenderManager.renderPosZ - (entity.posZ - (entity.prevPosZ - entity.posZ) * partialTicks);
-                //final double interpDistance = Math.sqrt(interpX * interpX + interpY * interpY + interpZ * interpZ);
-
-				float scale = 0.026666672F;
-                //GL11.glRotatef(-RenderManager.instance.playerViewY + 180, 0, 1, 0); //TODO NEW
-                //GL11.glRotatef(-RenderManager.instance.playerViewX, 1, 0, 0); //TODO NEW
-                //double scale = Distance; //TODO NEW
-                //scale /= sr.getScaleFactor() * 160; //TODO NEW
-                //if (scale <= 0.01) //TODO NEW
-                //    scale = 0.01; //TODO NEW
+//				float scale = 0.026666672F;
 				float maxHealth = entity.getMaxHealth();
 				float health = Math.min(maxHealth, entity.getHealth());
 
@@ -154,10 +139,18 @@ public class HealthBarRenderer {
 
 				GL11.glTranslatef((float) (x - RenderManager.renderPosX), (float) (y - RenderManager.renderPosY + passedEntity.height + NeatConfig.heightAbove), (float) (z - RenderManager.renderPosZ));
 				GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-				GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
-				GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
-				GL11.glScalef(-scale, -scale, scale);
-                //GL11.glScaled(scale, -scale, scale); //TODO NEW
+//				GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
+//				GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
+//				GL11.glScalef(-scale, -scale, scale);
+
+                GL11.glRotatef(-RenderManager.instance.playerViewY + 180, 0, 1, 0); //1.0.1 - scale patch
+                GL11.glRotatef(-RenderManager.instance.playerViewX, 1, 0, 0); //1.0.1 - scale patch
+                double scale = interpDistance; //1.0.1 - scale patch
+                scale /= sr.getScaleFactor() * getScaleFactorMultiplier; //1.0.1 - scale patch
+                if (scale <= minScale) //1.0.1 - scale patch
+                    scale = minScale; //1.0.1 - scale patch
+                GL11.glScaled(scale, -scale, scale); //1.0.1 - scale patch
+
 				boolean lighting = GL11.glGetBoolean(GL11.GL_LIGHTING);
 				GL11.glDisable(GL11.GL_LIGHTING);
 				GL11.glDepthMask(false);
@@ -322,6 +315,7 @@ public class HealthBarRenderer {
                 GL11.glPopMatrix();
                 GL11.glMatrixMode(GL11.GL_MODELVIEW);
 				GL11.glPopMatrix();
+                GL11.glTranslated(interpX, interpY - entity.height - 0.5, interpZ); //1.0.1 - scale patch
 
 				GL11.glDisable(GL11.GL_BLEND);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -329,9 +323,6 @@ public class HealthBarRenderer {
 				if (lighting)
 					GL11.glEnable(GL11.GL_LIGHTING);
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-                //GL11.glRotatef(RenderManager.instance.playerViewX, 1, 0, 0);//TODO NEW
-                //GL11.glRotatef(RenderManager.instance.playerViewY - 180, 0, 1, 0);//TODO NEW
-                //GL11.glTranslated(x, y - entity.height - 0.5, z); //TODO NEW
 				GL11.glPopMatrix();
 
 				pastTranslate = -(bgHeight + barHeight + padding);

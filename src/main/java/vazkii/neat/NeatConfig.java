@@ -8,7 +8,8 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
 public class NeatConfig {
-
+    public static double minScale = 0.026666672D;
+    public static double getScaleFactorMultiplier = 71.428571428D;
 	public static int maxDistance = 24;
 	public static boolean renderInF1 = false;
 	public static double heightAbove = 0.6;
@@ -40,6 +41,8 @@ public class NeatConfig {
 		config = new Configuration(f);
 		config.load();
 
+        minScale = loadPropDouble("Minimum bar size in scaled resolution", minScale);
+        getScaleFactorMultiplier = loadPropDouble("Multiplier for the bar size divisor, calculation formula: distance / (sr.getScaleFactor() * getScaleFactorMultiplier). sr.getScaleFactor() - size of the game window (taking into account the size of the GUI), the full-screen is 4, the smallest (with GUI) is 1. To find the size of the bar at n distance from the entity, divide the number of blocks from the entity by the size of the game window (from 1 to 4, it’s better to take 4) multiplied by this number, ideally it should be less than 1, around 0.01-0.09. The current number is calculated that at a distance of 20 blocks from the entity, in full screen mode (4) the strip size will be 0.07", getScaleFactorMultiplier);
 		maxDistance = loadPropInt("Max Distance", maxDistance);
 		renderInF1 = loadPropBool("Render with Interface Disabled (F1)", renderInF1);
 		heightAbove = loadPropDouble("Height Above Mob", heightAbove);
