@@ -5,4 +5,7 @@ repositories {
         name = "chickenbones"
         url = "http://chickenbones.net/maven/"
     }
+    flatDir {
+        dirs 'libs'
+    }
 }
