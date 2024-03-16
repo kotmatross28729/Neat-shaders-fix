@@ -1,5 +1,7 @@
 # Neat (1.7.10) - shaders fix
 
+## requires [unimixins](https://github.com/LegacyModdingMC/UniMixins) from 1.0.2 version!
+
 A mod that adds a health bar to mobs, but now works with shaders.
 
 <details>
@@ -44,12 +46,16 @@ https://github.com/kotmatross28729/Neat-shaders-fix/assets/110309314/1480d34f-f3
 
 </details>
 
-For now there are only fixes for shaders, but several improvements are possible in the future, so:
+### Changes:
+1) Fixed bar above mobs scale not depending on the screen resolution / GUI scale in the mc settings
 
-## current TODO:
+2) Fixed bar above mobs being displayed incorrectly when `B:"Only show the health bar for the entity looked at"=false`
 
-1) ~~Make the bar above the mobs scale depending on the screen resolution / GUI scale in the mc settings~~ fixed in 1.0.1
-2) ~~Make it so that the bar above mobs displayed not only when you look at the mob (now this works very poorly / practically does not work)~~ fixed in 1.0.1
+3) Fixed a bug where bars would not display on top of the player even if `B:"Display on Players"=true`
+
+4) Fixed compatibility with shaders
+
+5) Added config options with which you can disable the rendering of name tags above mobs and player nickname (can be turned on/off separately), enabled by default
 
 # Credits:
 

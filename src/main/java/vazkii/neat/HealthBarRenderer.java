@@ -1,6 +1,11 @@
 package vazkii.neat;
 
+import api.hbm.item.IGasMask;
+import com.hbm.items.armor.ArmorFSB;
+import com.hbm.render.util.RenderOverhead;
+import com.hbm.util.ArmorRegistry;
 import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -18,6 +23,7 @@ import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -35,6 +41,13 @@ import static vazkii.neat.NeatConfig.minScale;
 
 public class HealthBarRenderer {
     public static final Logger logger = LogManager.getLogger();
+
+    public static boolean isHbmLoaded() {
+        return Loader.isModLoaded("hbm");
+    }
+    public static boolean cancelNameTagRender = false;
+    public static boolean cancelNameTagRenderForPlayer = false;
+
     public static final ResourceLocation shaders_fix = new ResourceLocation("Neat/textures/shaders_workaround.png");
 
 	@SubscribeEvent
@@ -43,6 +56,7 @@ public class HealthBarRenderer {
         if (event.type != ElementType.ALL) {
             return;
         }
+
 		Minecraft mc = Minecraft.getMinecraft();
 
 		if(!NeatConfig.renderInF1 && !Minecraft.isGuiEnabled())
@@ -62,18 +76,57 @@ public class HealthBarRenderer {
 
 		if (NeatConfig.showOnlyFocused) {
 			Entity focused = getEntityLookedAt(mc.thePlayer);
-			if(focused instanceof EntityLivingBase)
-				renderHealthBar((EntityLivingBase) focused, event.partialTicks, cameraEntity);
+
+			if(focused instanceof EntityLivingBase) {
+                //Hbm thing
+                if(isHbmLoaded()) {
+                    if (NeatConfig.HbmEnemyHUD) {
+                        if (ArmorFSB.hasFSBArmor(mc.thePlayer)) {
+                            ItemStack plate = mc.thePlayer.inventory.armorInventory[2];
+                            ArmorFSB chestplate = (ArmorFSB) plate.getItem();
+                            if (chestplate != null) {
+                                if (chestplate.vats) {
+                                    renderHealthBar((EntityLivingBase) focused, event.partialTicks, cameraEntity);
+                                }
+                            }
+                        }
+                    } else {
+                        renderHealthBar((EntityLivingBase) focused, event.partialTicks, cameraEntity);
+                    }
+                } //Hbm thing
+                else {
+                    renderHealthBar((EntityLivingBase) focused, event.partialTicks, cameraEntity);
+                }
+            }
 		} else {
 			WorldClient client = mc.theWorld;
-			//Set<Entity> entities = ReflectionHelper.getPrivateValue(WorldClient.class, client, new String[] { "entityList", "field_73032_d", "J" });
             Set<Entity> entities = client.entityList;
 
-            for(Entity entity : entities)
-				if(entity != null && entity instanceof EntityLiving && entity != mc.thePlayer
+            for(Entity entity : entities) {
+
+                //Hbm thing
+                if(isHbmLoaded()) {
+                    if(entity != null && (entity instanceof EntityLiving || entity instanceof EntityPlayer) && entity != mc.thePlayer && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord) && entity.isEntityAlive()) {
+                        if (NeatConfig.HbmEnemyHUD) {
+                            if (ArmorFSB.hasFSBArmor(mc.thePlayer)) {
+                                ItemStack plate = mc.thePlayer.inventory.armorInventory[2];
+                                ArmorFSB chestplate = (ArmorFSB) plate.getItem();
+                                if (chestplate != null) {
+                                    if (chestplate.vats) {
+                                        renderHealthBar((EntityLivingBase) entity, event.partialTicks, cameraEntity);
+                                    }
+                                }
+                            }
+                        } else {
+                            renderHealthBar((EntityLivingBase) entity, event.partialTicks, cameraEntity);
+                        }
+                    }
+                } //Hbm thing
+                else if (entity != null && (entity instanceof EntityLiving || entity instanceof EntityPlayer) && entity != mc.thePlayer
                     && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord)
                     /*&& (entity.ignoreFrustumCheck || frustrum.isBoundingBoxInFrustum(entity.boundingBox))*/ && entity.isEntityAlive()) //isBoundingBoxInFrustum turned out to be the cause of an issue where bars weren't rendering at certain angles, and it seems to be completely unnecessary since bars don't render after a certain distance, and don't render behind blocks
-					renderHealthBar((EntityLiving) entity, event.partialTicks, cameraEntity);
+                    renderHealthBar((EntityLivingBase) entity, event.partialTicks, cameraEntity);
+            }
 		}
 	}
 	public void renderHealthBar(EntityLivingBase passedEntity, float partialTicks, Entity viewPoint) {
@@ -90,7 +143,7 @@ public class HealthBarRenderer {
 		float pastTranslate = 0F;
 		while(entity != null) {
 			if(NeatConfig.blacklist.contains(EntityList.getEntityString(entity)))
-				continue;
+				break;
 			processing: {
 				float brightness = 1.0f;
 				if (NeatConfig.darknessAdjustment) {
@@ -216,6 +269,13 @@ public class HealthBarRenderer {
 				if(namel + 20 > size * 2)
 					size = namel / 2F + 10F;
 				float healthSize = size * (health / maxHealth);
+
+                if(entity instanceof EntityPlayer && NeatConfig.hidePlayerName && NeatConfig.showOnPlayers) { //For player
+                    cancelNameTagRenderForPlayer = true;
+                }
+                if(entity instanceof EntityLiving && ((EntityLiving) entity).hasCustomNameTag() && NeatConfig.hideNameTag) { //For other entities
+                    cancelNameTagRender = true;
+                }
 
 				// Background
 				if(NeatConfig.drawBackground) {
