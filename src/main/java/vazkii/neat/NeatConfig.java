@@ -22,7 +22,7 @@ public class NeatConfig {
 	public static boolean showAttributes = true;
 	public static boolean showArmor = true;
 	public static boolean groupArmor = true;
-	public static boolean colorByType = true;
+	public static boolean colorByType = false;
 	public static int hpTextHeight = 14;
 	public static boolean showMaxHP = true;
 	public static boolean showCurrentHP = true;

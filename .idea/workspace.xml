@@ -58,7 +58,7 @@
       <option name="MAIN_CLASS_NAME" value="GradleStart" />
       <module name="Neat-shaders-fix.ideVirtualMain" />
       <option name="PROGRAM_PARAMETERS" value="&quot;--username&quot; &quot;Developer&quot; &quot;--version&quot; &quot;1.7.10&quot; &quot;--gameDir&quot; &quot;C:\Users\1\Desktop\WorkSpace2\Neat-shaders-fix\run&quot; &quot;--assetsDir&quot; &quot;C:\Users\1\.gradle\caches\retro_futura_gradle\assets&quot; &quot;--assetIndex&quot; &quot;1.7.10&quot; &quot;--uuid&quot; &quot;31c4910d-9b69-4725-8969-9ed53ac8a7dc&quot; &quot;--userProperties&quot; &quot;{}&quot; &quot;--accessToken&quot; &quot;0&quot;" />
-      <option name="VM_PARAMETERS" value="&quot;-ea:vazkii.neat&quot; &quot;-Dfml.ignoreInvalidMinecraftCertificates=true&quot; &quot;-Djava.library.path=C:\Users\1\Desktop\WorkSpace2\Neat-shaders-fix\run\natives\lwjgl2;C:\Program Files\Java\jdk1.8.0_351\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Program Files\gradle-4.4.1\bin;C:\Program Files\Java\jdk1.8.0_351\bin;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files\Java\jdk-21\bin;C:\Program Files\Java\jdk-20\bin;C:\Program Files\Java\jdk-19\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\dotnet\;;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Users\1\Desktop\ffmpeg-master-latest-win64-gpl\bin;C:\Users\1\AppData\Local\Microsoft\WindowsApps;C:\Users\1\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\1\AppData\Local\GitHubDesktop\bin;;.&quot;" />
+      <option name="VM_PARAMETERS" value="&quot;-ea:vazkii.neat&quot; &quot;-Dfml.ignoreInvalidMinecraftCertificates=true&quot; &quot;-Djava.library.path=C:\Users\1\Desktop\WorkSpace2\Neat-shaders-fix\run\natives\lwjgl2;C:\Program Files\Java\jdk-1.8\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Program Files\gradle-4.4.1\bin;C:\Program Files\Java\jdk-1.8\bin;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files\Java\jdk-21\bin;C:\Program Files\Java\jdk-20\bin;C:\Program Files\Java\jdk-19\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\dotnet\;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Users\1\Desktop\ffmpeg-master-latest-win64-gpl\bin;C:\Users\1\AppData\Local\Microsoft\WindowsApps;C:\Users\1\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\1\AppData\Local\GitHubDesktop\bin;.&quot; &quot;-Dfml.coreMods.load=vazkii.neat.asm.NeatEarlyMixins&quot;" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -68,7 +68,7 @@
       <option name="MAIN_CLASS_NAME" value="GradleStartServer" />
       <module name="Neat-shaders-fix.ideVirtualMain" />
       <option name="PROGRAM_PARAMETERS" value="&quot;nogui&quot;" />
-      <option name="VM_PARAMETERS" value="&quot;-ea:vazkii.neat&quot; &quot;-Dfml.ignoreInvalidMinecraftCertificates=true&quot;" />
+      <option name="VM_PARAMETERS" value="&quot;-ea:vazkii.neat&quot; &quot;-Dfml.ignoreInvalidMinecraftCertificates=true&quot; &quot;-Dfml.coreMods.load=vazkii.neat.asm.NeatEarlyMixins&quot;" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
       <method v="2">
         <option name="Make" enabled="true" />

@@ -11,8 +11,7 @@ public class Neat {
 
 	public static final String MOD_ID = "Neat";
 	public static final String MOD_NAME = MOD_ID;
-	public static final String BUILD = "GRADLE:BUILD";
-	public static final String VERSION = "GRADLE:VERSION-" + BUILD;
+	public static final String VERSION = "1.0.2" + " kotmatross edition";
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
