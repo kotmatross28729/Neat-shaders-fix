@@ -1,9 +1,6 @@
 package vazkii.neat;
 
-import api.hbm.item.IGasMask;
 import com.hbm.items.armor.ArmorFSB;
-import com.hbm.render.util.RenderOverhead;
-import com.hbm.util.ArmorRegistry;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -17,15 +14,22 @@ import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
-import net.minecraft.util.*;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import org.apache.logging.log4j.LogManager;
@@ -36,7 +40,11 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Set;
 
-import static vazkii.neat.NeatConfig.getScaleFactorMultiplier;
+import static vazkii.neat.NeatConfig.getScaleFactorAutoMax;
+import static vazkii.neat.NeatConfig.getScaleFactorLarge;
+import static vazkii.neat.NeatConfig.getScaleFactorNormal;
+import static vazkii.neat.NeatConfig.getScaleFactorSmall;
+import static vazkii.neat.NeatConfig.maxScale;
 import static vazkii.neat.NeatConfig.minScale;
 
 public class HealthBarRenderer {
@@ -148,12 +156,12 @@ public class HealthBarRenderer {
 				float brightness = 1.0f;
 				if (NeatConfig.darknessAdjustment) {
 					brightness = passedEntity.getBrightness(0.0f); // parameter is unused
-                    if (brightness < 0.5f)
-                        brightness = 0.5f;
-
+                    if (brightness < 0.3f) //0.5
+                        brightness = 0.3f;
 				}
 
-				int argbText = ( (int)(255 * brightness) << 24 ) | ( (int)(255 * brightness) << 16 ) | ( (int)(255 * brightness) << 8) | (int)(255); // At first, I just wanted the text to be a little lighter than the rest of the bar, but that just made the bar yellow-blue color, so I just made the text transparency independent of the light)
+                int argbText = ( (int)(255 * brightness) << 24 ) | ( (int)(255 * brightness) << 16 ) | ( (int)(255 * brightness) << 8) | (int)(255 * brightness);
+                int fullBrightText = 0xFFFFFFFF;
 
 				float distance = passedEntity.getDistanceToEntity(viewPoint);
 				if(distance > NeatConfig.maxDistance || !passedEntity.canEntityBeSeen(viewPoint) || entity.isInvisible())
@@ -196,12 +204,58 @@ public class HealthBarRenderer {
 //				GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
 //				GL11.glScalef(-scale, -scale, scale);
 
+                /// Small  - 1
+                /// Normal - 2
+                /// Large  - 3
+                /// Auto - any (up to 4)
+
                 GL11.glRotatef(-RenderManager.instance.playerViewY + 180, 0, 1, 0); //1.0.1 - scale patch
                 GL11.glRotatef(-RenderManager.instance.playerViewX, 1, 0, 0); //1.0.1 - scale patch
                 double scale = interpDistance; //1.0.1 - scale patch
-                scale /= sr.getScaleFactor() * getScaleFactorMultiplier; //1.0.1 - scale patch
-                if (scale <= minScale) //1.0.1 - scale patch
-                    scale = minScale; //1.0.1 - scale patch
+
+
+                //if else, if else, if else... switch case nado blyat'
+                    //tf IS that
+                    if(sr.getScaleFactor() == 0) {
+                        scale /= (getScaleFactorSmall + getScaleFactorSmall/2);
+                    }
+
+                    //not used prob
+                    else if(sr.getScaleFactor() > 0 && sr.getScaleFactor() < 1) { //0.000...1 - 0.999...
+                        scale /= sr.getScaleFactor() * (getScaleFactorSmall + getScaleFactorSmall/2); //tf is that
+                    }
+
+                    //idk, only if 1?
+                    else if (sr.getScaleFactor() >= 1.0 && sr.getScaleFactor() < 2.0) { //1 - 1.999...
+                        scale /= sr.getScaleFactor() * getScaleFactorSmall; //20blocks - scale 0.07
+                    }
+                    //idk, only if 2?
+                    else if (sr.getScaleFactor() >= 2.0 && sr.getScaleFactor() < 3.0) { //2 - 2.999...
+                        scale /= sr.getScaleFactor() * getScaleFactorNormal; //20blocks - scale 0.07
+                    }
+                    //idk, only if 3?
+                    else if (sr.getScaleFactor() >= 3.0 && sr.getScaleFactor() < 4.0) { //3 - 3.999...
+                        scale /= sr.getScaleFactor() * getScaleFactorLarge; //20blocks - scale 0.07
+                    }
+                    //idk, only if 4?
+                    else if (sr.getScaleFactor() >= 4.0) { //4 - INF
+                        scale /= sr.getScaleFactor() * getScaleFactorAutoMax; //20blocks - scale 0.07
+                    }
+
+                if (scale <= minScale)
+                    scale = minScale;
+                if (scale >= maxScale)
+                    scale = maxScale;
+
+                if(entity instanceof IBossDisplayData) {
+                    if (NeatConfig.biggerOnBosses) {
+                        scale *= NeatConfig.biggerOnBossesMultiplier;
+                    }
+                }
+                if (NeatConfig.globalMultiplier) {
+                    scale *= NeatConfig.globalMultiplierValue;
+                }
+
                 GL11.glScaled(scale, -scale, scale); //1.0.1 - scale patch
 
 				boolean lighting = GL11.glGetBoolean(GL11.GL_LIGHTING);
@@ -228,16 +282,11 @@ public class HealthBarRenderer {
 					r = 255;
 					g = 0;
 					EnumCreatureAttribute attr = entity.getCreatureAttribute();
-					switch(attr) {
-					case ARTHROPOD:
-						stack = new ItemStack(Items.spider_eye);
-						break;
-					case UNDEAD:
-						stack = new ItemStack(Items.rotten_flesh);
-						break;
-					default:
-						stack = new ItemStack(Items.skull, 1, 4);
-					}
+                    stack = switch (attr) {
+                        case ARTHROPOD -> new ItemStack(Items.spider_eye);
+                        case UNDEAD -> new ItemStack(Items.rotten_flesh);
+                        default -> new ItemStack(Items.skull, 1, 4); //creeper
+                    };
 				}
 
 				if(entity instanceof IBossDisplayData) {
@@ -314,7 +363,7 @@ public class HealthBarRenderer {
 				GL11.glPushMatrix();
 				GL11.glTranslatef(-size, -4.5F, 0F);
 				GL11.glScalef(s, s, s);
-				mc.fontRenderer.drawString(name, 0, 0, argbText);
+				mc.fontRenderer.drawString(name, 0, 0, NeatConfig.darknessAdjustmentText ? argbText : fullBrightText);
 
 				GL11.glPushMatrix();
 				float s1 = 0.75F;
@@ -331,11 +380,11 @@ public class HealthBarRenderer {
 					hpStr = hpStr.substring(0, hpStr.length() - 2);
 
 				if(NeatConfig.showCurrentHP)
-					mc.fontRenderer.drawString(hpStr, 2, h, argbText);
+					mc.fontRenderer.drawString(hpStr, 2, h, NeatConfig.darknessAdjustmentText ? argbText : fullBrightText);
 				if(NeatConfig.showMaxHP)
-					mc.fontRenderer.drawString(maxHpStr, (int) (size / (s * s1) * 2) - 2 - mc.fontRenderer.getStringWidth(maxHpStr), h, argbText);
+					mc.fontRenderer.drawString(maxHpStr, (int) (size / (s * s1) * 2) - 2 - mc.fontRenderer.getStringWidth(maxHpStr), h, NeatConfig.darknessAdjustmentText ? argbText : fullBrightText);
 				if(NeatConfig.showPercentage)
-					mc.fontRenderer.drawString(percStr, (int) (size / (s * s1)) - mc.fontRenderer.getStringWidth(percStr) / 2, h, argbText);
+					mc.fontRenderer.drawString(percStr, (int) (size / (s * s1)) - mc.fontRenderer.getStringWidth(percStr) / 2, h, NeatConfig.darknessAdjustmentText ? argbText : fullBrightText);
 
  				GL11.glPopMatrix();
 
