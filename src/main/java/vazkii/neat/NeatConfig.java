@@ -62,8 +62,8 @@ public class NeatConfig {
 		config.load();
 
 
-        globalMultiplier = loadPropBool("Render bar bigger?", biggerOnBosses);
-        globalMultiplierValue= loadPropDouble("How many times should bar be bigger?", biggerOnBossesMultiplier);
+        globalMultiplier = loadPropBool("Render bar bigger?", globalMultiplier);
+        globalMultiplierValue= loadPropDouble("How many times should bar be bigger?", globalMultiplierValue);
 
         biggerOnBosses = loadPropBool("Render bar bigger on bosses?", biggerOnBosses);
         biggerOnBossesMultiplier = loadPropDouble("How many times should bar be bigger on bosses?", biggerOnBossesMultiplier);
