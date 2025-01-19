@@ -35,6 +35,18 @@ public class NeatConfig {
 	@Config.Comment("Health Bar Height")
 	@Config.DefaultInt(4)
 	public static int barHeight;
+	@Config.Comment("Health Bar RGB Colors Modifier, set to a value greater than 0 to apply")
+	@Config.DefaultIntList({0,0,0})
+	public static int[] barRGBColorsModifier;
+	@Config.Comment("Health Bar RGB Colors for mob, requires colorByType")
+	@Config.DefaultIntList({0,255,0})
+	public static int[] barRGBColorsMob;
+	@Config.Comment("Health Bar RGB Colors for hostile mob, requires colorByType")
+	@Config.DefaultIntList({255,0,0})
+	public static int[] barRGBColorsMonster;
+	@Config.Comment("Health Bar RGB Colors for boss, requires colorByType")
+	@Config.DefaultIntList({128,0,128})
+	public static int[] barRGBColorsBoss;
 	@Config.Comment("Plate Size")
 	@Config.DefaultInt(25)
 	public static int plateSize;

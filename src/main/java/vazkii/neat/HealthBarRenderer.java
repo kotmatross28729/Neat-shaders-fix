@@ -15,7 +15,6 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureAttribute;
@@ -37,7 +36,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import vazkii.neat.config.NeatConfig;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.List;
 import java.util.Set;
 
@@ -214,9 +213,7 @@ public class HealthBarRenderer {
                 GL11.glRotatef(-RenderManager.instance.playerViewY + 180, 0, 1, 0); //1.0.1 - scale patch
                 GL11.glRotatef(-RenderManager.instance.playerViewX, 1, 0, 0); //1.0.1 - scale patch
                 double scale = interpDistance; //1.0.1 - scale patch
-
-
-                //if else, if else, if else... switch case nado blyat'
+				
                     //tf IS that
                     if(sr.getScaleFactor() == 0) {
                         scale /= (getScaleFactorSmall + getScaleFactorSmall/2);
@@ -274,15 +271,17 @@ public class HealthBarRenderer {
 				int barHeight = NeatConfig.barHeight;
 				float size = NeatConfig.plateSize;
 
-				int r = 0;
-				int g = 255;
-				int b = 0;
+				int r = NeatConfig.barRGBColorsMob[0];
+				int g = NeatConfig.barRGBColorsMob[1];
+				int b = NeatConfig.barRGBColorsMob[2];
 
 				ItemStack stack = null;
 
 				if(entity instanceof IMob) {
-					r = 255;
-					g = 0;
+					r = NeatConfig.barRGBColorsMonster[0];
+					g = NeatConfig.barRGBColorsMonster[1];
+					b = NeatConfig.barRGBColorsMonster[2];
+					
 					EnumCreatureAttribute attr = entity.getCreatureAttribute();
                     stack = switch (attr) {
                         case ARTHROPOD -> new ItemStack(Items.spider_eye);
@@ -292,9 +291,10 @@ public class HealthBarRenderer {
 				}
 
 				if(entity instanceof IBossDisplayData) {
-                    r = 128;
-                    g = 0;
-                    b = 128;
+					r = NeatConfig.barRGBColorsBoss[0];
+					g = NeatConfig.barRGBColorsBoss[1];
+					b = NeatConfig.barRGBColorsBoss[2];
+					
 					stack = new ItemStack(Items.skull);
 					size = NeatConfig.plateSizeBoss;
 				}
@@ -309,7 +309,17 @@ public class HealthBarRenderer {
 					g = color.getGreen();
 					b = color.getBlue();
 				}
-
+				
+				if(NeatConfig.barRGBColorsModifier[0] > 0) {
+					r = NeatConfig.barRGBColorsModifier[0];
+				}
+				if(NeatConfig.barRGBColorsModifier[1] > 0) {
+					g = NeatConfig.barRGBColorsModifier[1];
+				}
+				if(NeatConfig.barRGBColorsModifier[2] > 0) {
+					b = NeatConfig.barRGBColorsModifier[2];
+				}
+					
 				GL11.glTranslatef(0F, pastTranslate, 0F);
 
 				float s = 0.5F;
