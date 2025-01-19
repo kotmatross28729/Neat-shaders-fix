@@ -35,17 +35,18 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
+import vazkii.neat.config.NeatConfig;
 
 import java.awt.Color;
 import java.util.List;
 import java.util.Set;
 
-import static vazkii.neat.NeatConfig.getScaleFactorAutoMax;
-import static vazkii.neat.NeatConfig.getScaleFactorLarge;
-import static vazkii.neat.NeatConfig.getScaleFactorNormal;
-import static vazkii.neat.NeatConfig.getScaleFactorSmall;
-import static vazkii.neat.NeatConfig.maxScale;
-import static vazkii.neat.NeatConfig.minScale;
+import static vazkii.neat.config.NeatConfig.getScaleFactorAutoMax;
+import static vazkii.neat.config.NeatConfig.getScaleFactorLarge;
+import static vazkii.neat.config.NeatConfig.getScaleFactorNormal;
+import static vazkii.neat.config.NeatConfig.getScaleFactorSmall;
+import static vazkii.neat.config.NeatConfig.maxScale;
+import static vazkii.neat.config.NeatConfig.minScale;
 
 public class HealthBarRenderer {
     public static final Logger logger = LogManager.getLogger();
@@ -150,8 +151,9 @@ public class HealthBarRenderer {
         ScaledResolution sr = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight); //1.0.1 - scale patch
 		float pastTranslate = 0F;
 		while(entity != null) {
-			if(NeatConfig.blacklist.contains(EntityList.getEntityString(entity)))
-				break;
+			//TODO
+			//if(NeatConfig.blacklist.contains(EntityList.getEntityString(entity)))
+			//	break;
 			processing: {
 				float brightness = 1.0f;
 				if (NeatConfig.darknessAdjustment) {

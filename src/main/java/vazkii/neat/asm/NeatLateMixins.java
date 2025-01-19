@@ -5,7 +5,7 @@ import com.gtnewhorizon.gtnhmixins.LateMixin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.MixinEnvironment;
-import vazkii.neat.NeatConfig;
+import vazkii.neat.config.NeatConfig;
 
 import java.util.ArrayList;
 import java.util.List;

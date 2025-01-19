@@ -5,7 +5,7 @@ import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import vazkii.neat.NeatConfig;
+import vazkii.neat.config.NeatConfig;
 
 import java.util.ArrayList;
 import java.util.List;
