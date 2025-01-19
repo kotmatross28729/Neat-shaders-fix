@@ -1,6 +1,6 @@
 # Neat (1.7.10) - shaders fix
 
-## requires [unimixins](https://github.com/LegacyModdingMC/UniMixins) from 1.0.2 version!
+## requires [unimixins](https://github.com/LegacyModdingMC/UniMixins) and [GTNHLib](https://github.com/GTNewHorizons/GTNHLib)!
 
 A mod that adds a health bar to mobs, but now works with shaders.
 
@@ -57,7 +57,7 @@ https://github.com/kotmatross28729/Neat-shaders-fix/assets/110309314/1480d34f-f3
 
 5) Added config options with which you can disable the rendering of name tags above mobs and player nickname (can be turned on/off separately), enabled by default
 
-6) Added config option with which you can make the bars above mobs appear only if the player wearing hbm's ntm armor with the "Enemy HUD" bonus (It only works if hbm is loaded, it is disabled by default, however, the health of mobs when you wear armor with "Enemy HUD" ( name tag above them) is removed, since it is also regulated by an option that removes the name tag above mobs)
+6) Added config option with which you can make the bars above mobs appear only if the player wearing hbm's ntm armor with the "Enemy HUD" (It only works if hbm is loaded, it is disabled by default, however, the health of mobs when you wear armor with "Enemy HUD" ( name tag above them) is removed, since it is also regulated by an option that removes the name tag above mobs)
 
 # Credits:
 
