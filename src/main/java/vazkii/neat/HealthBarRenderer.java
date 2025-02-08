@@ -2,7 +2,6 @@ package vazkii.neat;
 
 import com.hbm.items.armor.ArmorFSB;
 import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -36,7 +35,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import vazkii.neat.config.NeatConfig;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.List;
 import java.util.Set;
 
@@ -49,17 +48,12 @@ import static vazkii.neat.config.NeatConfig.minScale;
 
 public class HealthBarRenderer {
     public static final Logger logger = LogManager.getLogger();
-
-    public static boolean isHbmLoaded() {
-        return Loader.isModLoaded("hbm");
-    }
     public static boolean cancelNameTagRender = false;
     public static boolean cancelNameTagRenderForPlayer = false;
-
     public static final ResourceLocation shaders_fix = new ResourceLocation("Neat/textures/shaders_workaround.png");
 
 	@SubscribeEvent
-	public void onRenderWorldLast(RenderGameOverlayEvent event) {
+	public void onRenderGameOverlayEvent(RenderGameOverlayEvent event) {
 
         if (event.type != ElementType.ALL) {
             return;
@@ -84,26 +78,24 @@ public class HealthBarRenderer {
 
 		if (NeatConfig.showOnlyFocused) {
 			Entity focused = getEntityLookedAt(mc.thePlayer);
-
-			if(focused instanceof EntityLivingBase) {
+			if(focused instanceof EntityLivingBase entityLivingBaseFocused) {
                 //Hbm thing
-                if(isHbmLoaded()) {
+                if(Neat.isHbmLoaded) {
                     if (NeatConfig.HbmEnemyHUD) {
                         if (ArmorFSB.hasFSBArmor(mc.thePlayer)) {
                             ItemStack plate = mc.thePlayer.inventory.armorInventory[2];
                             ArmorFSB chestplate = (ArmorFSB) plate.getItem();
                             if (chestplate != null) {
                                 if (chestplate.vats) {
-                                    renderHealthBar((EntityLivingBase) focused, event.partialTicks, cameraEntity);
+                                    renderHealthBar(entityLivingBaseFocused, event.partialTicks, cameraEntity);
                                 }
                             }
                         }
                     } else {
-                        renderHealthBar((EntityLivingBase) focused, event.partialTicks, cameraEntity);
+                        renderHealthBar(entityLivingBaseFocused, event.partialTicks, cameraEntity);
                     }
-                } //Hbm thing
-                else {
-                    renderHealthBar((EntityLivingBase) focused, event.partialTicks, cameraEntity);
+                } else {
+                    renderHealthBar(entityLivingBaseFocused, event.partialTicks, cameraEntity);
                 }
             }
 		} else {
@@ -111,30 +103,30 @@ public class HealthBarRenderer {
             Set<Entity> entities = client.entityList;
 
             for(Entity entity : entities) {
-
-                //Hbm thing
-                if(isHbmLoaded()) {
-                    if(entity != null && (entity instanceof EntityLiving || entity instanceof EntityPlayer) && entity != mc.thePlayer && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord) && entity.isEntityAlive()) {
-                        if (NeatConfig.HbmEnemyHUD) {
-                            if (ArmorFSB.hasFSBArmor(mc.thePlayer)) {
-                                ItemStack plate = mc.thePlayer.inventory.armorInventory[2];
-                                ArmorFSB chestplate = (ArmorFSB) plate.getItem();
-                                if (chestplate != null) {
-                                    if (chestplate.vats) {
-                                        renderHealthBar((EntityLivingBase) entity, event.partialTicks, cameraEntity);
-                                    }
-                                }
-                            }
-                        } else {
-                            renderHealthBar((EntityLivingBase) entity, event.partialTicks, cameraEntity);
-                        }
-                    }
-                } //Hbm thing
-                else if (entity != null && (entity instanceof EntityLiving || entity instanceof EntityPlayer) && entity != mc.thePlayer
-                    && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord)
-                    /*&& (entity.ignoreFrustumCheck || frustrum.isBoundingBoxInFrustum(entity.boundingBox))*/ && entity.isEntityAlive()) //isBoundingBoxInFrustum turned out to be the cause of an issue where bars weren't rendering at certain angles, and it seems to be completely unnecessary since bars don't render after a certain distance, and don't render behind blocks
-                    renderHealthBar((EntityLivingBase) entity, event.partialTicks, cameraEntity);
-            }
+				if(entity != null && (entity instanceof EntityLiving || entity instanceof EntityPlayer)
+						&& entity != mc.thePlayer && entity.isInRangeToRender3d(renderingVector.xCoord, renderingVector.yCoord, renderingVector.zCoord)
+						&& entity.isEntityAlive())
+				{
+					//Hbm thing
+					if (Neat.isHbmLoaded) {
+						if (NeatConfig.HbmEnemyHUD) {
+							if (ArmorFSB.hasFSBArmor(mc.thePlayer)) {
+								ItemStack plate = mc.thePlayer.inventory.armorInventory[2];
+								ArmorFSB chestplate = (ArmorFSB) plate.getItem();
+								if (chestplate != null) {
+									if (chestplate.vats) {
+										renderHealthBar((EntityLivingBase) entity, event.partialTicks, cameraEntity);
+									}
+								}
+							}
+						} else {
+							renderHealthBar((EntityLivingBase) entity, event.partialTicks, cameraEntity);
+						}
+					} else {
+						renderHealthBar((EntityLivingBase) entity, event.partialTicks, cameraEntity);
+					}
+				}
+			}
 		}
 	}
 	public void renderHealthBar(EntityLivingBase passedEntity, float partialTicks, Entity viewPoint) {
@@ -157,7 +149,7 @@ public class HealthBarRenderer {
 				float brightness = 1.0f;
 				if (NeatConfig.darknessAdjustment) {
 					brightness = passedEntity.getBrightness(0.0f); // parameter is unused
-                    if (brightness < 0.3f) //0.5
+                    if (brightness < 0.3f) //0.3
                         brightness = 0.3f;
 				}
 
@@ -180,8 +172,7 @@ public class HealthBarRenderer {
                 final double interpY = RenderManager.renderPosY - (entity.posY - (entity.prevPosY - entity.posY) * partialTicks); //1.0.1 - scale patch
                 final double interpZ = RenderManager.renderPosZ - (entity.posZ - (entity.prevPosZ - entity.posZ) * partialTicks); //1.0.1 - scale patch
                 final double interpDistance = Math.sqrt(interpX * interpX + interpY * interpY + interpZ * interpZ); //1.0.1 - scale patch
-
-//				float scale = 0.026666672F;
+				
 				float maxHealth = entity.getMaxHealth();
 				float health = Math.min(maxHealth, entity.getHealth());
 
@@ -201,10 +192,9 @@ public class HealthBarRenderer {
 
 				GL11.glTranslatef((float) (x - RenderManager.renderPosX), (float) (y - RenderManager.renderPosY + passedEntity.height + NeatConfig.heightAbove), (float) (z - RenderManager.renderPosZ));
 				GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-//				GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
-//				GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
-//				GL11.glScalef(-scale, -scale, scale);
-
+				
+				//Nonsense ↓↓↓
+				
                 /// Small  - 1
                 /// Normal - 2
                 /// Large  - 3
@@ -240,12 +230,11 @@ public class HealthBarRenderer {
                     else if (sr.getScaleFactor() >= 4.0) { //4 - INF
                         scale /= sr.getScaleFactor() * getScaleFactorAutoMax; //20blocks - scale 0.07
                     }
-
-                if (scale <= minScale)
-                    scale = minScale;
-                if (scale >= maxScale)
-                    scale = maxScale;
-
+					
+				//Nonsense ↑↑↑
+				
+				scale = Math.max(minScale, Math.min(scale, maxScale));
+					
                 if(entity instanceof IBossDisplayData) {
                     if (NeatConfig.biggerOnBosses) {
                         scale *= NeatConfig.biggerOnBossesMultiplier;
@@ -330,23 +319,26 @@ public class HealthBarRenderer {
 				if(namel + 20 > size * 2)
 					size = namel / 2F + 10F;
 				float healthSize = size * (health / maxHealth);
-
-                if(entity instanceof EntityPlayer && NeatConfig.hidePlayerName && NeatConfig.showOnPlayers) { //For player
-                    cancelNameTagRenderForPlayer = true;
-                }
-                if(entity instanceof EntityLiving && ((EntityLiving) entity).hasCustomNameTag() && NeatConfig.hideNameTag) { //For other entities
-                    cancelNameTagRender = true;
-                }
-
+				
+				//Guh, I forgot that it was static 💀
+				//For player
+				if(entity instanceof EntityPlayer) {
+					cancelNameTagRenderForPlayer = NeatConfig.hidePlayerName && NeatConfig.showOnPlayers;
+				}
+				//For other entities
+				else if (entity instanceof EntityLiving entityLiving && entityLiving.hasCustomNameTag()) {
+					cancelNameTagRender = NeatConfig.hideNameTag;
+				}
+				
 				// Background
 				if(NeatConfig.drawBackground) {
 					tessellator.startDrawingQuads();
                     Minecraft.getMinecraft().renderEngine.bindTexture(shaders_fix);
 					tessellator.setColorRGBA(0, 0, 0, (int) (64f * brightness));
-					tessellator.addVertexWithUV(-size - padding, -bgHeight, 0.0D,0,1);
-					tessellator.addVertexWithUV(-size - padding, barHeight + padding, 0.0D,0,1);
-					tessellator.addVertexWithUV(size + padding, barHeight + padding, 0.0D,0,1);
-					tessellator.addVertexWithUV(size + padding, -bgHeight, 0.0D,0,1);
+					tessellator.addVertex(-size - padding, -bgHeight, 0.0D);
+					tessellator.addVertex(-size - padding, barHeight + padding, 0.0D);
+					tessellator.addVertex(size + padding, barHeight + padding, 0.0D);
+					tessellator.addVertex(size + padding, -bgHeight, 0.0D);
 					tessellator.draw();
 				}
 
@@ -354,20 +346,20 @@ public class HealthBarRenderer {
 				tessellator.startDrawingQuads();
                 Minecraft.getMinecraft().renderEngine.bindTexture(shaders_fix);
 				tessellator.setColorRGBA(127, 127, 127, (int) (127f * brightness));
-				tessellator.addVertexWithUV(-size, 0, 0.0D,0,1);
-				tessellator.addVertexWithUV(-size, barHeight, 0.0D,0,1);
-				tessellator.addVertexWithUV(size, barHeight, 0.0D,0,1);
-				tessellator.addVertexWithUV(size, 0, 0.0D,0,1);
+				tessellator.addVertex(-size, 0, 0.0D);
+				tessellator.addVertex(-size, barHeight, 0.0D);
+				tessellator.addVertex(size, barHeight, 0.0D);
+				tessellator.addVertex(size, 0, 0.0D);
 				tessellator.draw();
 
 				// Health Bar
 				tessellator.startDrawingQuads();
                 Minecraft.getMinecraft().renderEngine.bindTexture(shaders_fix);
 				tessellator.setColorRGBA(r, g, b, (int) (127f * brightness));
-				tessellator.addVertexWithUV(-size, 0, 0.0D,0,1);
-				tessellator.addVertexWithUV(-size, barHeight, 0.0D,0,1);
-				tessellator.addVertexWithUV(healthSize * 2 - size, barHeight, 0.0D,0,1);
-				tessellator.addVertexWithUV(healthSize * 2 - size, 0, 0.0D,0,1);
+				tessellator.addVertex(-size, 0, 0.0D);
+				tessellator.addVertex(-size, barHeight, 0.0D);
+				tessellator.addVertex(healthSize * 2 - size, barHeight, 0.0D);
+				tessellator.addVertex(healthSize * 2 - size, 0, 0.0D);
 				tessellator.draw();
 
 				GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -565,6 +557,4 @@ public class HealthBarRenderer {
 	    }
 	    return returnMOP;
 	}
-
-
 }

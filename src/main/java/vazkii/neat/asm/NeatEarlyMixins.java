@@ -5,7 +5,6 @@ import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import vazkii.neat.config.NeatConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,7 @@ public class NeatEarlyMixins implements IFMLLoadingPlugin, IEarlyMixinLoader {
         boolean client = FMLLaunchHandler.side().isClient();
         List<String> mixins = new ArrayList<>();
          Logger logger = LogManager.getLogger();
-            if((NeatConfig.hideNameTag || (NeatConfig.hidePlayerName && NeatConfig.showOnPlayers)) && client) {
+            if(client) {
                 logger.info("Integrating MixinRendererLivingEntity (name tag disabler)");
                 mixins.add("client.minecraft.client.renderer.entity.MixinRendererLivingEntity");
             }
