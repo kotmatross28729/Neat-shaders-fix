@@ -53,17 +53,14 @@ public class HealthBarRenderer {
     public static final ResourceLocation shaders_fix = new ResourceLocation("Neat/textures/shaders_workaround.png");
 
 	@SubscribeEvent
-	public void onRenderGameOverlayEvent(RenderGameOverlayEvent event) {
+	public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Post event) {
 
         if (event.type != ElementType.ALL) {
             return;
         }
 
 		Minecraft mc = Minecraft.getMinecraft();
-
-		if(!NeatConfig.renderInF1 && !Minecraft.isGuiEnabled())
-			return;
-
+		
 		if (mc.thePlayer.isPotionActive(Potion.blindness))
 			return;
 

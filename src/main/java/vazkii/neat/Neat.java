@@ -21,7 +21,7 @@ public class Neat {
 
 	public static final String MOD_ID = "Neat";
 	public static final String MOD_NAME = MOD_ID;
-	public static final String VERSION = "1.0.5" + " kotmatross edition";
+	public static final String VERSION = "1.0.6" + " kotmatross edition";
 	public static boolean isHbmLoaded = false;
 	
 	@EventHandler

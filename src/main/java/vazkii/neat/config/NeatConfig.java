@@ -17,9 +17,6 @@ public class NeatConfig {
 	@Config.Comment("Max Distance")
 	@Config.DefaultInt(32)
 	public static int maxDistance;
-	@Config.Comment("Render with Interface Disabled (F1)")
-	@Config.DefaultBoolean(false)
-	public static boolean renderInF1;
 	@Config.Comment("Height Above Mob")
 	@Config.DefaultDouble(0.6D)
 	public static double heightAbove;
